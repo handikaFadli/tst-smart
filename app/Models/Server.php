@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Server extends Model
+{
+    /** @use HasFactory<\Database\Factories\ServerFactory> */
+    use HasFactory;
+    protected $fillable = [
+        'nama',
+        'ip_address',
+        'catatan',
+    ];
+
+    public function clientApps()
+    {
+        return $this->hasMany(ClientApp::class);
+    }
+}
