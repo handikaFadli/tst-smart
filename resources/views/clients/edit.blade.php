@@ -48,13 +48,6 @@
                     @enderror
                 </div>
 
-                {{-- <div class="md:col-span-2">
-                    <label for="kode_client" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Kode Client
-                    </label>
-                    <input type="text" readonly value="{{ $client->kode_client }}" class="block w-full px-3 py-2.5 text-sm font-mono bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">
-                    <p class="mt-1 text-xs text-gray-500">Kode client tidak dapat diubah</p>
-                </div> --}}
 
                 <div>
                     <label for="client_type_id" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -268,10 +261,10 @@
 
         {{-- ── Action Buttons ── --}}
         <div class="flex items-center justify-end gap-3">
-            <a href="{{ route('clients.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition">
+            <a href="{{ route('clients.index') }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition cursor-pointer">
                 Kembali
             </a>
-            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>

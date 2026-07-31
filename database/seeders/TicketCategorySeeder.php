@@ -15,17 +15,17 @@ class TicketCategorySeeder extends Seeder
         $ticket_categories = [
             [
                 'nama' => 'Server Issues',
-                'deskripsi' => 'Issues related to server performance and functionality',
+                'deskripsi' => '-',
                 'is_active' => true
             ],
             [
                 'nama' => 'Network Problems',
-                'deskripsi' => 'Issues related to network connectivity and performance',
+                'deskripsi' => '-',
                 'is_active' => true
             ],
             [
                 'nama' => 'Software Bugs',
-                'deskripsi' => 'Issues related to software bugs and errors',
+                'deskripsi' => '-',
                 'is_active' => true
             ],
         ];

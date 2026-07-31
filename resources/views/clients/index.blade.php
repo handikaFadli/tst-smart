@@ -98,15 +98,15 @@
                     <table class="w-full text-sm text-left" id="data-table">
                         <thead>
                             <tr class="bg-slate-200 dark:bg-gray-700">
-                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider w-12">#</th>
-                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider min-w-25">Client</th>
-                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">Siswa</th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider">#</th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider">Klien</th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">Jumsis</th>
                                 <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider">Fitur</th>
-                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider min-w-25">AktiVasi</th>
-                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider min-w-25">Expired</th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider">AktiVasi</th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider min-w-20">Expired</th>
                                 <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
                                  @if ($user->isAdmin())
-                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider text-center min-w-35">Aksi</th>
+                                <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider text-center">Aksi</th>
                                 @endif
                             </tr>
                         </thead>
@@ -137,7 +137,7 @@
                                         {{ $client->nama }}
                                     </div>
 
-                                    <div class="flex flex-wrap gap-1 mt-1 items-start">
+                                    <div class="flex flex-wrap gap-1 items-start">
 
                                         <span class="text-[11px] font-mono bg-gray-100 px-2 py-0.5 rounded">
                                             {{ $client->kode }}
@@ -292,26 +292,49 @@
                                 </td>
 
                                 @if ($user->isAdmin())
-                                <td class="px-4 py-3">
-                                    <div class="flex justify-center gap-1">
-
-                                        <a href="{{ route('clients.show',$client->id) }}"
-                                        class="p-1.5 rounded border border-blue-200 text-blue-600 hover:bg-blue-50">
-                                            👁
-                                        </a>
-
-                                        <a href="{{ route('clients.edit',$client->id) }}"
-                                        class="p-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-100">
-                                            ✏️
-                                        </a>
-
-                                        <button onclick="confirmDelete({{ $client->id }})"
-                                            class="p-1.5 rounded border border-red-200 text-red-600 hover:bg-red-50">
+                                <td class="">
+                                    <button id="dropdownDelay{{ $client->id }}Button" data-dropdown-toggle="dropdownDelay{{ $client->id }}" data-dropdown-delay="500" data-dropdown-trigger="click" class="inline-flex items-center justify-center text-white bg-brand box-border border border-transparent text-sm cursor-pointer" type="button">
                                             <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 6h.01M12 12h.01M12 18h.01"/>
                                             </svg>
-                                        </button>
+                                    </button>
 
+                                    <div id="dropdownDelay{{ $client->id }}" class="absolute right-0 mt-2 z-50 hidden bg-white dark:bg-gray-800 bg-neutral-primary-medium border border-gray-200 dark:border-gray-700 border-default-medium rounded-lg rounded-base shadow-lg w-44">
+                                        <ul class="p-2 text-sm text-gray-700 dark:text-gray-200 text-body font-medium" aria-labelledby="dropdownDelay{{ $client->id }}Button">
+                                            <li>
+                                                <a href="{{ route('clients.show', $client->id) }}" class="inline-flex items-center gap-1 w-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700 hover:bg-neutral-tertiary-medium hover:text-heading rounded">
+                                                    <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-width="1" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
+                                                        <path stroke="currentColor" stroke-width="1" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                    </svg>
+                                                    Detail
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('clients.edit', $client->id) }}" class="inline-flex items-center gap-1 w-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700 hover:bg-neutral-tertiary-medium hover:text-heading rounded">
+                                                    <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"/>
+                                                    </svg>
+                                                    Edit
+                                                </a>
+                                            </li>
+                                            
+                                            <li>
+                                                <form id="delete-form-{{ $client->id }}" action="{{ route('clients.destroy', $client->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button type="button"
+                                                            onclick="openDeleteModal('delete-form-{{ $client->id }}', '{{ $client->nama }}')"
+                                                            class="inline-flex items-center gap-1 w-full p-1 text-sm text-gray-700 hover:bg-gray-100 hover:text-heading dark:text-gray-200 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer">
+                                                        <svg class="w-4 h-4 text-gray-800 dark:text-white shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+                                                        </svg>
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </td>
                                 @endif
@@ -325,32 +348,6 @@
         </div>
     </div>
 
-    {{-- Delete Confirmation JS --}}
-    <script>
-    function confirmDelete(id) {
-        if (confirm('Yakin ingin menghapus client ini? Data terkait juga akan terhapus.')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/clients/${id}`;
-            form.style.display = 'none';
-            
-            const csrf = document.createElement('input');
-            csrf.type = 'hidden';
-            csrf.name = '_token';
-            csrf.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content') || '{{ csrf_token() }}';
-            form.appendChild(csrf);
-            
-            const method = document.createElement('input');
-            method.type = 'hidden';
-            method.name = '_method';
-            method.value = 'DELETE';
-            form.appendChild(method);
-            
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-    </script>
 </main>
 @endsection
 

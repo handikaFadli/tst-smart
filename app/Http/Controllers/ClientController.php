@@ -99,15 +99,9 @@ class ClientController extends Controller
         $validated = $request->validated();
 
         // Generate Kode Client
-        $lastClient = Client::latest('id')->first();
+        $nextId = (Client::withTrashed()->max('id') ?? 0) + 1;
 
-        if ($lastClient) {
-            $newNumber = (int) str_replace('CL-', '', $lastClient->kode) + 1;
-        } else {
-            $newNumber = 1;
-        }
-
-        $kodeClient = 'CL-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        $kodeClient = 'CL-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
         // Simpan Client
         $client = Client::create([

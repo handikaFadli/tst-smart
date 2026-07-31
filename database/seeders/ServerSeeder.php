@@ -14,19 +14,19 @@ class ServerSeeder extends Seeder
     {
         $servers = [
             [
-                'nama_server' => 'Server 1',
-                'ip_address' => '103.1.1.1',
-                'catatan' => 'Main production server'
+                'nama' => 'Server 01',
+                'ip_address' => '192.168.1.10',
+                'catatan' => 'Sharing'
             ],
             [
-                'nama_server' => 'Server 2',
-                'ip_address' => '103.1.1.2',
-                'catatan' => 'Backup server'
+                'nama' => 'Server 02',
+                'ip_address' => '192.168.1.11',
+                'catatan' => 'Mandiri'
             ],
             [
-                'nama_server' => 'Server 3',
-                'ip_address' => '103.1.1.3',
-                'catatan' => 'Testing server'
+                'nama' => 'Server 03',
+                'ip_address' => '192.169.1.11',
+                'catatan' => 'Mandiri'
             ],
         ];
 

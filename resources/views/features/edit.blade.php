@@ -7,14 +7,9 @@
 
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-3">
-            <a href="{{ route('features.index') }}" class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </a>
+            
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Fitur Aplikasi</h1>
         </div>
-        {{-- <p class="text-sm text-gray-500 dark:text-gray-400">Update data feature {{ $feature->nama_fitur }}</p> --}}
     </div>
 
     <form action="{{ route('features.update', $feature) }}" method="POST">
@@ -65,15 +60,15 @@
 
         <div class="flex items-center justify-end gap-3">
             <a href="{{ route('features.index') }}"
-               class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition">
+               class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 transition cursor-pointer">
                 Kembali
             </a>
             <button type="submit"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
+                    class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                Update Feature
+                Update
             </button>
         </div>
 

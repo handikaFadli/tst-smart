@@ -18,8 +18,15 @@ class DatabaseSeeder extends Seeder
 
         $this->call(UserSeeder::class);
         $this->call(FeatureSeeder::class);
+
+        // Master data
+        $this->call(ProductsSeeder::class);
+        $this->call(ServerSeeder::class);
+        $this->call(ClientTypesSeeder::class);
+        $this->call(TicketCategorySeeder::class);
+
+        // Relasi / turunan
+        $this->call(TicketRuleSeeder::class);
         // $this->call(ClientAppFeatureSeeder::class);
-        // $this->call(ServerSeeder::class);
-        // $this->call(TicketCategorySeeder::class);
     }
 }
