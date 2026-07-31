@@ -71,34 +71,108 @@ class DashboardController extends Controller
 			->pluck('total', 'priority');
 
 		// 6. Team Performance (support & leader)
-		$teamPerformance = User::whereIn('role', ['support', 'leader'])
+
+		$driver = DB::getDriverName();
+
+		$teamPerformance = User::query()
+			->whereIn('role', ['support', 'leader'])
+			->where('users.is_active', true)
+			->leftJoin('tickets', 'users.id', '=', 'tickets.assigned_to')
 			->select([
 				'users.id',
 				'users.name',
 				DB::raw('COUNT(DISTINCT tickets.id) as total_tickets'),
-				DB::raw('ROUND(AVG(
-                    TIMESTAMPDIFF(
-                        MINUTE,
-                        tickets.created_at,
-                        COALESCE(tickets.resolved_at, NOW())
-                    )
-                ), 1) as avg_resolution_minutes'),
 			])
-			->leftJoin('tickets', 'users.id', '=', 'tickets.assigned_to')
-			->where('users.is_active', true)
 			->groupBy('users.id', 'users.name')
 			->orderByDesc('total_tickets')
 			->get()
-			->map(function ($user) {
-				$avgResponseMinutes = TicketRuleLog::whereHas('ticket', function ($q) use ($user) {
-					$q->where('assigned_to', $user->id);
-				})
-					->whereNotNull('first_response_at')
-					->selectRaw('ROUND(AVG(TIMESTAMPDIFF(MINUTE, ticket_rule_logs.created_at, first_response_at)), 1) as avg')
-					->value('avg');
+			->map(function ($user) use ($driver) {
 
-				$user->avg_response_minutes = round($avgResponseMinutes ?? 0, 1);
-				$user->avg_resolution_minutes = round($user->avg_resolution_minutes ?? 0, 1);
+				// ==========================
+				// Average Resolution Time
+				// ==========================
+				if ($driver === 'pgsql') {
+
+					$avgResolution = Ticket::query()
+						->where('assigned_to', $user->id)
+						->whereNotNull('resolved_at')
+						->selectRaw("
+                    ROUND(
+                        AVG(
+                            EXTRACT(
+                                EPOCH FROM (
+                                    resolved_at - created_at
+                                )
+                            ) / 60
+                        ),
+                    1) as avg
+                ")
+						->value('avg');
+				} else {
+
+					$avgResolution = Ticket::query()
+						->where('assigned_to', $user->id)
+						->whereNotNull('resolved_at')
+						->selectRaw("
+                    ROUND(
+                        AVG(
+                            TIMESTAMPDIFF(
+                                MINUTE,
+                                created_at,
+                                resolved_at
+                            )
+                        ),
+                    1) as avg
+                ")
+						->value('avg');
+				}
+
+				// ==========================
+				// Average First Response
+				// ==========================
+				if ($driver === 'pgsql') {
+
+					$avgResponse = TicketRuleLog::query()
+						->whereHas('ticket', function ($q) use ($user) {
+							$q->where('assigned_to', $user->id);
+						})
+						->whereNotNull('first_response_at')
+						->selectRaw("
+                    ROUND(
+                        AVG(
+                            EXTRACT(
+                                EPOCH FROM (
+                                    first_response_at - created_at
+                                )
+                            ) / 60
+                        ),
+                    1) as avg
+                ")
+						->value('avg');
+				} else {
+
+					$avgResponse = TicketRuleLog::query()
+						->whereHas('ticket', function ($q) use ($user) {
+							$q->where('assigned_to', $user->id);
+						})
+						->whereNotNull('first_response_at')
+						->selectRaw("
+                    ROUND(
+                        AVG(
+                            TIMESTAMPDIFF(
+                                MINUTE,
+                                created_at,
+                                first_response_at
+                            )
+                        ),
+                    1) as avg
+                ")
+						->value('avg');
+				}
+
+				$user->avg_resolution_minutes = round($avgResolution ?? 0, 1);
+				$user->avg_response_minutes = round($avgResponse ?? 0, 1);
+
 				return $user;
 			});
 

@@ -40,7 +40,7 @@ class ProductController extends Controller
         ]);
 
         return redirect()->route('products.index')
-            ->with('success', 'Product berhasil ditambahkan!');
+            ->with('success', 'Produk berhasil ditambahkan!');
     }
 
     /**
@@ -70,7 +70,7 @@ class ProductController extends Controller
         ]);
 
         return redirect()->route('products.index')
-            ->with('success', 'Product berhasil diupdate!');
+            ->with('success', 'Produk berhasil diupdate!');
     }
 
     public function destroy(Product $product)
@@ -78,6 +78,6 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')
-            ->with('success', 'Product berhasil dihapus!');
+            ->with('success', 'Produk berhasil dihapus!');
     }
 }
