@@ -2,15 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Feature;
 use App\Http\Requests\StoreFeatureRequest;
 use App\Http\Requests\UpdateFeatureRequest;
+use App\Models\Feature;
+use Illuminate\Http\Request;
 
 class FeatureController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $features = Feature::latest()->paginate(10);
+        $query = Feature::query();
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_fitur', 'like', "%{$search}%")
+                    ->orWhere('kode', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $query->latest();
+
+        $features = $query
+            ->paginate($request->per_page ?? 10)
+            ->withQueryString();
 
         return view('features.index', compact('features'));
     }

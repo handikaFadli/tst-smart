@@ -68,23 +68,64 @@
     </div>
 
     {{-- ─── FILTER ─── --}}
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
 
-        <div class="flex items-center gap-2">
-            <button id="filter-status" data-dropdown-toggle="dropdown-status"
-                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 {{ $slaStatus ? 'ring-2 ring-blue-200' : '' }}">
-                {{ $slaStatus ? ucfirst(str_replace('_', ' ', $slaStatus)) : 'Semua Status' }}
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            <div id="dropdown-status" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44 dark:bg-gray-700">
-                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                    <li><a href="{{ route('tickets.monitoring-sla') }}" class="block px-4 py-2 hover:bg-gray-100 {{ !$slaStatus ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Semua</a></li>
-                    <li><a href="{{ route('tickets.monitoring-sla', ['sla_status' => 'on_time']) }}" class="block px-4 py-2 hover:bg-gray-100 {{ $slaStatus === 'on_time' ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">On Time</a></li>
-                    <li><a href="{{ route('tickets.monitoring-sla', ['sla_status' => 'warning']) }}" class="block px-4 py-2 hover:bg-gray-100 {{ $slaStatus === 'warning' ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Warning</a></li>
-                    <li><a href="{{ route('tickets.monitoring-sla', ['sla_status' => 'breach']) }}" class="block px-4 py-2 hover:bg-gray-100 {{ $slaStatus === 'breach' ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Breach</a></li>
-                </ul>
+        <div class="flex items-center gap-3">
+            <div class="relative inline-block">
+                <button id="perPageButton"
+                    data-dropdown-toggle="perPageDropdown"
+                    class="flex items-center justify-between w-18 h-11 px-4
+                        bg-white border border-gray-200 rounded-xl shadow-sm
+                        text-sm font-medium text-gray-700
+                        hover:border-primary-400 hover:shadow-md
+                        focus:ring-4 focus:ring-primary-100
+                        transition-all cursor-pointer">
+
+                    <span>{{ request('per_page',10) }} </span>
+
+                    <svg class="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"/>
+                    </svg>
+
+                </button>
+
+                <div id="perPageDropdown" class="hidden z-20 w-36 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                    @foreach([10,25,50,100] as $size)
+                        <button
+                            onclick="updatePerPage({{ $size }})"
+                            class="w-full px-4 py-2.5 text-left text-sm
+                                hover:bg-primary-50
+                                hover:text-primary-600
+                                transition cursor-pointer
+                                {{ request('per_page',10)==$size ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-gray-700' }}">
+                            {{ $size }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="relative inline-block">
+                <button id="filter-status" data-dropdown-toggle="dropdown-status"
+                    class="inline-flex items-center justify-between gap-1.5 min-w-37 h-11 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-primary-400 hover:shadow-md cursor-pointer {{ $slaStatus ? 'ring-2 ring-blue-200' : '' }}">
+                    <span>{{ $slaStatus ? ucfirst(str_replace('_', ' ', $slaStatus)) : 'Semua Status' }}</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="dropdown-status" class="z-20 hidden w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer dark:bg-gray-700">
+                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                        <li><a href="{{ route('tickets.monitoring-sla', request()->except('sla_status', 'page')) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ !$slaStatus ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Semua</a></li>
+                        <li><a href="{{ route('tickets.monitoring-sla', array_merge(request()->except('sla_status', 'page'), ['sla_status' => 'on_time'])) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ $slaStatus === 'on_time' ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">On Time</a></li>
+                        <li><a href="{{ route('tickets.monitoring-sla', array_merge(request()->except('sla_status', 'page'), ['sla_status' => 'warning'])) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ $slaStatus === 'warning' ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Warning</a></li>
+                        <li><a href="{{ route('tickets.monitoring-sla', array_merge(request()->except('sla_status', 'page'), ['sla_status' => 'breach'])) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ $slaStatus === 'breach' ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Breach</a></li>
+                    </ul>
+                </div>
             </div>
 
             {{-- Tombol Download Excel --}}
@@ -97,6 +138,48 @@
             </a>
         </div>
 
+        <div class="relative flex w-96">
+
+            <div class="relative flex-1">
+
+                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
+                </svg>
+
+                <input
+                    id="search-input"
+                    value="{{ request('search') }}"
+                    placeholder="Cari..."
+                    class="w-full h-11 rounded-l-xl border border-gray-300 border-r-0
+                        pl-11 pr-4 text-sm
+                        focus:outline-none
+                        focus:border-primary-500
+                        focus:ring-4 focus:ring-primary-100
+                        transition-all duration-200"
+                    onkeypress="if(event.key==='Enter') searchTable()">
+
+            </div>
+
+            <button
+                onclick="searchTable()"
+                class="h-11 px-6 rounded-r-xl
+                    bg-primary-600 hover:bg-primary-700
+                    border border-primary-600
+                    text-white text-sm font-medium
+                    transition-all duration-200 cursor-pointer">
+
+                Cari
+
+            </button>
+
+        </div>
+
     </div>
 
     {{-- ─── TABLE ─── --}}
@@ -104,9 +187,9 @@
         <div class="overflow-x-auto">
             <div class="inline-block min-w-full align-middle">
                 <div class="overflow-hidden shadow relative bg-neutral-primary-soft">
-                    <table class="w-full text-sm text-left" id="data-table">
+                    <table class="w-full text-sm text-left">
                         <thead>
-                            <tr>
+                            <tr class="bg-slate-200 dark:bg-gray-700">
                                 <th class="px-6 py-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                                     Tiket
                                 </th>
@@ -263,6 +346,26 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+
+        {{-- Info --}}
+        <div class="text-sm text-gray-500">
+            Menampilkan
+            <span class="font-semibold">{{ $tickets->firstItem() ?? 0 }}</span>
+            -
+            <span class="font-semibold">{{ $tickets->lastItem() ?? 0 }}</span>
+            dari
+            <span class="font-semibold">{{ $tickets->total() }}</span>
+            data
+        </div>
+
+        {{-- Pagination --}}
+        <div>
+            {{ $tickets->withQueryString() }}
+        </div>
+
     </div>
 
     {{-- ========================= --}}
@@ -427,5 +530,42 @@
     </div>
 
 </main>
+
+@push('scripts')
+<script>
+
+    function getUrl() {
+        return new URL(window.location.href);
+    }
+
+    function searchTable() {
+
+        const url = getUrl();
+        const search = document.getElementById('search-input').value;
+
+        if (search !== '') {
+            url.searchParams.set('search', search);
+        } else {
+            url.searchParams.delete('search');
+        }
+
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+    function updatePerPage(value) {
+
+        const url = getUrl();
+
+        url.searchParams.set('per_page', value);
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+</script>
+@endpush
 @endsection
+
 

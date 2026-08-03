@@ -2,15 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Server;
 use App\Http\Requests\StoreServerRequest;
 use App\Http\Requests\UpdateServerRequest;
+use App\Models\Server;
+use Illuminate\Http\Request;
 
 class ServerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $servers = Server::latest()->paginate(10);
+        $query = Server::query();
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhere('catatan', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $query->latest();
+
+        $servers = $query
+            ->paginate($request->per_page ?? 10)
+            ->withQueryString();
+
 
         return view('servers.index', compact('servers'));
     }

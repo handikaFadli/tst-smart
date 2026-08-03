@@ -7,9 +7,14 @@
 
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-3">
-            
+            <a href="{{ route('features.index') }}" class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Fitur Aplikasi</h1>
         </div>
+        {{-- <p class="text-sm text-gray-500 dark:text-gray-400">Update data feature {{ $feature->nama_fitur }}</p> --}}
     </div>
 
     <form action="{{ route('features.update', $feature) }}" method="POST">

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class ProductsSeeder extends Seeder
@@ -14,24 +13,27 @@ class ProductsSeeder extends Seeder
     {
         $products = [
             [
-                'kode' => 'EDL',
                 'nama' => 'Edulink',
+                'kode' => 'EDU',
                 'deskripsi' => '-',
+
             ],
             [
-                'kode' => 'CBT',
                 'nama' => 'Ujian CBT',
+                'kode' => 'CBT',
                 'deskripsi' => '-',
+
             ],
             [
-                'kode' => 'KP',
                 'nama' => 'Kartu Pintar',
+                'kode' => 'KP',
                 'deskripsi' => '-',
+
             ],
         ];
 
         foreach ($products as $product) {
-            Product::create($product);
+            \App\Models\Product::create($product);
         }
     }
 }

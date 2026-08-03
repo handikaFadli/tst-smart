@@ -5,13 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\ClientType;
 use App\Http\Requests\StoreClientTypeRequest;
 use App\Http\Requests\UpdateClientTypeRequest;
+use Illuminate\Http\Request;
 
 class ClientTypeController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $clientTypes = ClientType::latest()->paginate(10);
+        $query = ClientType::query();
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $query->latest();
+
+        $clientTypes = $query
+            ->paginate($request->per_page ?? 10)
+            ->withQueryString();
 
         return view('client-types.index', compact('clientTypes'));
     }

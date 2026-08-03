@@ -7,6 +7,29 @@ import "./charts";
 import "./dark-mode";
 import "./sidebar";
 
+window.showLoading = function () {
+    const loading = document.getElementById("loading-screen");
+
+    if (loading) {
+        loading.classList.remove("hidden");
+        loading.classList.add("flex");
+    }
+};
+
+window.hideLoading = function () {
+    const loading = document.getElementById("loading-screen");
+
+    if (loading) {
+        loading.classList.remove("flex");
+        loading.classList.add("hidden");
+    }
+};
+
+// Refresh / pindah halaman / tutup tab
+window.addEventListener("beforeunload", function () {
+    showLoading();
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("data-table");
 

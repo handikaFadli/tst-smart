@@ -33,24 +33,52 @@ class TicketController extends Controller
             'ruleLogs',
         ]);
 
+        // Filter by Search
+        if ($request->filled('search')) {
+
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+
+                $q->where('judul', 'like', "%{$search}%")
+                    ->orWhere('kode_ticket', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($q2) use ($search) {
+                        $q2->where('nama', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('category', function ($q2) use ($search) {
+                        $q2->where('nama', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         // Filter by Status
-        if ($request->filled('status') && $request->status !== 'semua') {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by Category
-        if ($request->filled('category_id') && $request->category_id !== 'semua') {
-            $query->where('category_id', $request->category_id);
+        $selectedCategory = null;
+
+        if ($request->filled('kategori')) {
+            $selectedCategory = TicketCategory::find($request->kategori);
+
+            $query->where('category_id', $request->kategori);
         }
 
         // Filter by Product — filter tickets whose client has an app with the given product_id
-        if ($request->filled('product') && $request->product !== 'semua') {
-            $query->whereHas('client.app', function ($q) use ($request) {
-                $q->where('product_id', $request->product);
+        $selectedProduct = null;
+
+        if ($request->filled('jenis')) {
+            $selectedProduct = Product::find($request->jenis);
+
+            $query->whereHas('client.app.product', function ($q) use ($request) {
+                $q->where('products.id', $request->jenis);
             });
         }
 
-        $tickets = $query->latest()->paginate(10);
+        $perPage = $request->integer('per_page', 10);
+
+        $tickets = $query->latest()->paginate($perPage)->withQueryString();
 
         // Statistik tiket per status
         $stats = [
@@ -67,7 +95,15 @@ class TicketController extends Controller
 
         $user = Auth::user();
 
-        return view('tickets.index', compact('tickets', 'stats', 'categories', 'products', 'user'));
+        return view('tickets.index', [
+            'tickets' => $tickets,
+            'stats' => $stats,
+            'categories' => $categories,
+            'products' => $products,
+            'user' => $user,
+            'selectedCategory' => $selectedCategory,
+            'selectedProduct' => $selectedProduct,
+        ]);
     }
 
     /**
@@ -84,6 +120,21 @@ class TicketController extends Controller
             ])
             ->whereIn('status', ['open', 'in_progress', 'pending', 'resolved']);
 
+        // Filter by Search
+        if ($request->filled('search')) {
+
+            $search = $request->search;
+
+            $tickets->where(function ($q) use ($search) {
+
+                $q->where('judul', 'like', "%{$search}%")
+                    ->orWhere('kode_ticket', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($q2) use ($search) {
+                        $q2->where('nama', 'like', "%{$search}%");
+                    });
+            });
+        }
+
         // Filter by SLA status
         $slaStatus = $request->sla_status;
         if ($slaStatus && in_array($slaStatus, ['on_time', 'warning', 'breach'])) {
@@ -92,7 +143,9 @@ class TicketController extends Controller
             });
         }
 
-        $tickets = $tickets->latest()->paginate(10);
+        $perPage = $request->integer('per_page', 10);
+
+        $tickets = $tickets->latest()->paginate($perPage)->withQueryString();
 
         // Statistik SLA (overall, tidak terfilter)
         $totalActive = Ticket::whereIn('status', ['open', 'in_progress', 'pending', 'resolved'])->count();

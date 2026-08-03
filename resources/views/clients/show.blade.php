@@ -252,6 +252,52 @@
 
     </div>
 
+{{-- ── SECTION 5: Kontrak ── --}}
+    @php $contract = $client->contracts->first(); @endphp
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-6 shadow-xs">
+        <div class="flex items-center gap-2 mb-5">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+            </div>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Kontrak</h2>
+        </div>
+
+        @if($contract)
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Nomor Kontrak</label>
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $contract->nomor_kontrak ?? '—' }}</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Tanggal Mulai</label>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ $contract->tanggal_mulai ? \Carbon\Carbon::parse($contract->tanggal_mulai)->format('d M Y') : '—' }}</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Tanggal Berakhir</label>
+                    <span class="text-sm text-gray-900 dark:text-white">{{ $contract->tanggal_berakhir ? \Carbon\Carbon::parse($contract->tanggal_berakhir)->format('d M Y') : '—' }}</span>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">File Kontrak</label>
+                    @if($contract->file)
+                        <a href="{{ asset('storage/'.$contract->file) }}" target="_blank"
+                           class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Lihat File Kontrak
+                        </a>
+                    @else
+                        <span class="text-sm text-gray-500">—</span>
+                    @endif
+                </div>
+            </div>
+        @else
+            <p class="text-sm text-gray-500 italic">Belum ada data kontrak untuk client ini.</p>
+        @endif
+    </div>
+
     {{-- ── Action Buttons ── --}}
     <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
         <a href="{{ route('clients.index') }}"

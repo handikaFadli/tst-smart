@@ -21,6 +21,22 @@
 
 <body class="bg-gray-50 dark:bg-gray-900 antialiased">
 
+    <div
+    id="loading-screen"
+    class="hidden fixed inset-0 z-[9999] bg-white/80 backdrop-blur-lg items-center justify-center">
+
+        <div class="flex flex-col items-center gap-3">
+            <div class="loading">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+    </div>
+
     @include('layouts.partials.navbar-dashboard')
 
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -45,14 +61,7 @@
                         <p class="font-semibold text-gray-900">Berhasil!</p>
                         <p class="text-gray-600">{{ session('success') }}</p>
                     </div>
-                    <button type="button"
-                            class="ms-auto -mx-1.5 -my-1.5 flex items-center justify-center text-gray-400 hover:text-gray-900 bg-transparent hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg text-sm h-8 w-8 focus:outline-none transition-colors"
-                            data-dismiss-target="#toast-success" aria-label="Close">
-                        <span class="sr-only">Close</span>
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                        </svg>
-                    </button>
+                   
                 </div>
                 @endif
 
@@ -70,14 +79,7 @@
                         <p class="font-semibold text-gray-900">Gagal!</p>
                         <p class="text-gray-600">{{ session('success') }}</p>
                     </div>
-                    <button type="button"
-                            class="ms-auto -mx-1.5 -my-1.5 flex items-center justify-center text-gray-400 hover:text-gray-900 bg-transparent hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 rounded-lg text-sm h-8 w-8 focus:outline-none transition-colors"
-                            data-dismiss-target="#toast-success" aria-label="Close">
-                        <span class="sr-only">Close</span>
-                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                        </svg>
-                    </button>
+                    
                 </div>
                 @endif
 
@@ -85,7 +87,7 @@
                 @yield('content')
             </main>
 
-            {{-- @include('layouts.partials.footer-dashboard') --}}
+            @include('layouts.partials.footer-dashboard')
 
         </div>
         

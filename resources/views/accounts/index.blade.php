@@ -4,53 +4,164 @@
 
 @section('content')
 <main>
-    <div class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
-        <div class="w-full mb-1">
-            <div class="mb-4">
-                <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Daftar Akun</h1>
-                {{-- <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Username & password akses aplikasi per sekolah</p> --}}
+    <div class="pt-5 flex items-center justify-between mb-5">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Daftar Akun</h1>
+        <a href="{{ route('accounts.create') }}"
+        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Tambah
+        </a>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
+        <div class="flex items-center gap-3">
+            <div class="relative inline-block">
+                <button id="perPageButton"
+                    data-dropdown-toggle="perPageDropdown"
+                    class="flex items-center justify-between w-18 h-11 px-4
+                        bg-white border border-gray-200 rounded-xl shadow-sm
+                        text-sm font-medium text-gray-700
+                        hover:border-primary-400 hover:shadow-md
+                        focus:ring-4 focus:ring-primary-100
+                        transition-all cursor-pointer">
+
+                    <span>{{ request('per_page',10) }} </span>
+
+                    <svg class="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"/>
+                    </svg>
+
+                </button>
+
+                <div id="perPageDropdown" class="hidden z-20 w-36 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                    @foreach([10,25,50,100] as $size)
+                        <button
+                            onclick="updatePerPage({{ $size }})"
+                            class="w-full px-4 py-2.5 text-left text-sm
+                                hover:bg-primary-50
+                                hover:text-primary-600
+                                transition cursor-pointer
+                                {{ request('per_page',10)==$size ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-gray-700' }}">
+                            {{ $size }} 
+                        </button>
+                    @endforeach
+                </div>
             </div>
+            <div class="relative inline-block">
 
-            {{-- Filter & Actions --}}
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2">
+                <button
+                    id="jenisButton"
+                    data-dropdown-toggle="jenisDropdown"
+                    class="flex items-center justify-between min-w-37 h-11 px-4
+                        bg-white border border-gray-200 rounded-xl shadow-sm
+                        text-sm font-medium text-gray-700
+                        hover:border-primary-400 hover:shadow-md
+                        focus:ring-4 focus:ring-primary-100
+                        transition-all cursor-pointer">
 
-                    {{-- Filter Jenis --}}
-                    <button id="filter-jenis" data-dropdown-toggle="dropdown-jenis"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600">
-                        {{ request('jenis', 'semua') === 'semua' ? 'Semua Jenis' : ucfirst(request('jenis')) }}
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <span>
+                        {{ optional($selectedProduct)->nama ?: 'Semua Jenis' }}
+                    </span>
+
+                    <svg class="w-4 h-4 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"/>
+
+                    </svg>
+
+                </button>
+
+                <div id="jenisDropdown"
+                    class="hidden z-20 w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer">
+
+                    <button
+                        onclick="filterJenis('')"
+                        class="w-full px-4 py-2.5 flex items-center justify-between
+                                hover:bg-primary-50 hover:text-primary-600 transition cursor-pointer">
+                        Semua Jenis
+                        
                     </button>
-                    <div id="dropdown-jenis" class="z-10 hidden bg-white rounded-lg shadow-lg w-40 dark:bg-gray-700">
-                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                            <li><a href="?{{ http_build_query(request()->except('jenis') + ['jenis' => 'semua']) }}" class="block px-4 py-2 hover:bg-gray-100 {{ !request('jenis') || request('jenis') === 'semua' ? 'bg-blue-50 font-medium' : '' }}">Semua</a></li>
-                            <li><a href="?{{ http_build_query(request()->except('jenis') + ['jenis' => 'edulink']) }}" class="block px-4 py-2 hover:bg-gray-100 {{ request('jenis') === 'edulink' ? 'bg-blue-50 font-medium' : '' }}">EduLink</a></li>
-                            <li><a href="?{{ http_build_query(request()->except('jenis') + ['jenis' => 'ujiancbt']) }}" class="block px-4 py-2 hover:bg-gray-100 {{ request('jenis') === 'ujiancbt' ? 'bg-blue-50 font-medium' : '' }}">Ujian CBT</a></li>
-                        </ul>
-                    </div>
+
+                    @foreach($products as $product)
+
+                        <button
+                             onclick="filterJenis('{{ $product->id }}')"
+                            class="w-full px-4 py-2.5 flex items-center justify-between
+                                hover:bg-primary-50 hover:text-primary-600 transition cursor-pointer
+                                {{ request('jenis') == $product->id ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-gray-700' }}">
+
+                            <span>{{ $product->nama }}</span>
+
+                        </button>
+
+                    @endforeach
 
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('accounts.create') }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Tambah Akun
-                    </a>
-                    <button type="button"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-full hover:bg-green-600">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Download
-                    </button>
-                </div>
             </div>
         </div>
+
+        <div class="relative flex w-96">
+
+            <div class="relative flex-1">
+
+                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
+                </svg>
+
+                <input
+                    id="search-input"
+                    value="{{ request('search') }}"
+                    placeholder="Cari..."
+                    class="w-full h-11 rounded-l-xl border border-gray-300 border-r-0
+                        pl-11 pr-4 text-sm
+                        focus:outline-none
+                        focus:border-primary-500
+                        focus:ring-4 focus:ring-primary-100
+                        transition-all duration-200"
+                    onkeypress="if(event.key==='Enter') searchTable()">
+
+            </div>
+
+            <button
+                onclick="searchTable()"
+                class="h-11 px-6 rounded-r-xl
+                    bg-primary-600 hover:bg-primary-700
+                    border border-primary-600
+                    text-white text-sm font-medium
+                    transition-all duration-200 cursor-pointer">
+
+                Cari
+
+            </button>
+
+        </div>
+
     </div>
     <div class="flex flex-col">
         <div class="overflow-x-auto">
             <div class="inline-block min-w-full align-middle">
                 <div class="overflow-hidden shadow relative bg-neutral-primary-soft ">
-                    <table class="w-full text-sm text-left" id="data-table">
+                    <table class="w-full text-sm text-left">
                         <thead>
                             <tr class="bg-slate-200 dark:bg-gray-700">
                                 <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider border border-slate-300 w-12 text-center">#</th>
@@ -115,9 +226,9 @@
                                                 </td>
                                                 <td class="px-4 py-3 border border-slate-200 bg-gray-50 align-middle"
                                                     rowspan="{{ $rowspan }}">
-                                                    <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $client->nama_client }}</div>
+                                                    <div class="font-medium text-gray-900 dark:text-white text-sm">{{ $client->nama }}</div>
                                                     <div class="flex flex-wrap gap-1 mt-1.5">
-                                                        <span class="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">{{ $client->kode_client }}</span>
+                                                        <span class="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">{{ $client->kode }}</span>
                                                         @if($client->jenis === 'edulink')
                                                             <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-violet-100 text-violet-600">EduLink</span>
                                                         @else
@@ -170,17 +281,16 @@
                                             <td class="px-4 py-3 border border-slate-200 text-center align-middle"
                                                     rowspan="{{ $rowspan }}">
                                                     <div class="flex flex-col items-center gap-1.5">
-                                                        {{-- <a href="{{ route('accounts.show', $akun) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs border border-blue-200 text-blue-600 rounded-md hover:bg-blue-50 w-full justify-center">
-                                                            Detail
-                                                        </a> --}}
-                                                        <a href="{{ route('accounts.edit',$akun->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs     border border-blue-300 text-blue-600 rounded-md hover:bg-blue-50 w-full justify-center font-medium">
+                                                        <a href="{{ route('accounts.edit',$akun->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs border border-blue-300 text-blue-600 rounded-md hover:bg-blue-50 w-full justify-center font-medium">
                                                             Edit
                                                         </a>
 
-                                                        <form action="{{ route('accounts.destroy', $akun) }}" method="POST" class="w-full" onsubmit="return confirm('Yakin hapus akun {{ $akun->username }}?')">
+                                                        <form id="delete-form-{{ $akun->id }}" action="{{ route('accounts.destroy', $akun->id) }}" method="POST" class="inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="w-full inline-flex items-center gap-1 px-2.5 py-1 text-xs border border-red-300 text-red-600 rounded-md hover:bg-red-50 justify-center transition">
+                                                            <button type="button"
+                                                                    onclick="openDeleteModal('delete-form-{{ $akun->id }}', '{{ $client->nama }}')"
+                                                                    class="inline-flex items-center gap-1 px-2.5 py-1 text-xs border border-red-300 text-red-600 rounded-md hover:bg-red-50 w-full justify-center font-medium cursor-pointer">
                                                                 Hapus
                                                             </button>
                                                         </form>
@@ -196,7 +306,7 @@
                             @empty
                                 <tr>
                                     <td colspan="6" class="px-4 py-10 text-center text-sm text-gray-400 border border-slate-200">
-                                        Tidak ada data client
+                                        Tidak ada data klien
                                     </td>
                                 </tr>
                             @endforelse
@@ -206,33 +316,25 @@
             </div>
         </div>
     </div>
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
 
-    {{-- Delete Confirmation JS --}}
-    <script>
-    function confirmDelete(id) {
-        if (confirm('Yakin ingin menghapus client ini? Data terkait juga akan terhapus.')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/accounts/${id}`;
-            form.style.display = 'none';
-            
-            const csrf = document.createElement('input');
-            csrf.type = 'hidden';
-            csrf.name = '_token';
-            csrf.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content') || '{{ csrf_token() }}';
-            form.appendChild(csrf);
-            
-            const method = document.createElement('input');
-            method.type = 'hidden';
-            method.name = '_method';
-            method.value = 'DELETE';
-            form.appendChild(method);
-            
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-    </script>
+        {{-- Info --}}
+        <div class="text-sm text-gray-500">
+            Menampilkan
+            <span class="font-semibold">{{ $clients->firstItem() ?? 0 }}</span>
+            -
+            <span class="font-semibold">{{ $clients->lastItem() ?? 0 }}</span>
+            dari
+            <span class="font-semibold">{{ $clients->total() }}</span>
+            data
+        </div>
+
+        {{-- Pagination --}}
+        <div>
+            {{ $clients->withQueryString() }}
+        </div>
+
+    </div>
 </main>
 
 @push('scripts')
@@ -272,6 +374,49 @@ function togglePw(id) {
         eye.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
     }
 }
+function getUrl() {
+        return new URL(window.location.href);
+    }
+
+    function searchTable() {
+
+        const url = getUrl();
+        const search = document.getElementById('search-input').value;
+
+        if (search !== '') {
+            url.searchParams.set('search', search);
+        } else {
+            url.searchParams.delete('search');
+        }
+
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+    function updatePerPage(value) {
+
+        const url = getUrl();
+
+        url.searchParams.set('per_page', value);
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+    function filterJenis(id) {
+
+        const url = getUrl();
+
+        if (id === '') {
+            url.searchParams.delete('jenis');
+        } else {
+            url.searchParams.set('jenis', id);
+        }
+
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
 </script>
 @endpush
 @endsection

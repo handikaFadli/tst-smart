@@ -29,6 +29,11 @@ class Client extends Model
     // Relationships
     // -------------------------------------------------------------------------
 
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(ClientContract::class, 'client_id');
+    }
+
     public function app()
     {
         return $this->hasOne(ClientApp::class);

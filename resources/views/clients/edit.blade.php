@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    <form action="{{ route('clients.update', $client) }}" method="POST">
+<form action="{{ route('clients.update', $client) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -48,6 +48,13 @@
                     @enderror
                 </div>
 
+                {{-- <div class="md:col-span-2">
+                    <label for="kode_client" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Kode Client
+                    </label>
+                    <input type="text" readonly value="{{ $client->kode_client }}" class="block w-full px-3 py-2.5 text-sm font-mono bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed">
+                    <p class="mt-1 text-xs text-gray-500">Kode client tidak dapat diubah</p>
+                </div> --}}
 
                 <div>
                     <label for="client_type_id" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -256,7 +263,84 @@
                 </div>
             </div>
 
-            <textarea name="catatan" id="catatan" rows="3" placeholder="Tulis catatan internal mengenai client ini..." class="block w-full px-3 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 transition resize-none">{{ $client->app->catatan ?? old('catatan') }}</textarea>
+<textarea name="catatan" id="catatan" rows="3" placeholder="Tulis catatan internal mengenai client ini..." class="block w-full px-3 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 transition resize-none">{{ $client->app->catatan ?? old('catatan') }}</textarea>
+        </div>
+
+        {{-- ── SECTION 5: Kontrak ── --}}
+        @php $contract = $client->contracts->first(); @endphp
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-5 shadow-xs">
+            <div class="flex items-center gap-2 mb-5">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+                    <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-900 dark:text-white">Kontrak</h2>
+                    <p class="text-xs text-gray-400">Informasi kontrak klien</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                    <label for="nomor_kontrak" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Kontrak</label>
+                    <input type="text" name="nomor_kontrak" id="nomor_kontrak"
+                           value="{{ old('nomor_kontrak', $contract?->nomor_kontrak) }}"
+                           placeholder="Contoh: 001/KONTRAK/2026"
+                           class="block w-full px-3 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 transition">
+                    @error('nomor_kontrak')
+                        <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="tanggal_mulai" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Mulai</label>
+                    <input type="date" name="tanggal_mulai" id="tanggal_mulai"
+                           value="{{ old('tanggal_mulai', $contract?->tanggal_mulai) }}"
+                           class="block w-full px-3 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition">
+                    @error('tanggal_mulai')
+                        <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="tanggal_berakhir" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Berakhir</label>
+                    <input type="date" name="tanggal_berakhir" id="tanggal_berakhir"
+                           value="{{ old('tanggal_berakhir', $contract?->tanggal_berakhir) }}"
+                           class="block w-full px-3 py-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition">
+                    @error('tanggal_berakhir')
+                        <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <div class="md:col-span-3">
+                    <label for="file" class="block mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">File Kontrak</label>
+                    <input type="file" name="file" id="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                           class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white transition file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-1 text-xs text-gray-400">
+                        @if($contract?->file)
+                            File saat ini: <a href="{{ asset('storage/'.$contract->file) }}" target="_blank" class="text-blue-600 hover:text-blue-500 dark:text-blue-400 underline">Lihat file</a>
+                        @else
+                            Belum ada file. PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Maksimal 5 MB.
+                        @endif
+                    </p>
+                    @error('file')
+                        <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+            </div>
         </div>
 
         {{-- ── Action Buttons ── --}}
@@ -268,7 +352,7 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                Update Client
+                Update
             </button>
         </div>
 

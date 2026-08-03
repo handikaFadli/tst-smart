@@ -8,9 +8,6 @@ use Illuminate\Database\Seeder;
 
 class TicketRuleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Ambil semua kategori tiket yang sudah di-seed

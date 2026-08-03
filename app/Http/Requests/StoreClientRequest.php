@@ -36,6 +36,12 @@ class StoreClientRequest extends FormRequest
             'expired_domain' => 'nullable|date',
             'status' => 'required|in:active,expired,trial,inactive',
             'catatan' => 'nullable|string|max:1000',
+
+            // ─── Client Contract ───
+            'nomor_kontrak' => 'nullable|string|max:100',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_berakhir' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:5120',
         ];
     }
 
@@ -47,6 +53,9 @@ class StoreClientRequest extends FormRequest
         return [
             'jumsis.min' => 'Jumlah siswa tidak boleh kurang dari 0.',
             'expired_aplikasi.after_or_equal' => 'Tanggal expired aplikasi harus setelah atau sama dengan aktivasi.',
+            'tanggal_berakhir.after_or_equal' => 'Tanggal berakhir kontrak harus setelah atau sama dengan tanggal mulai.',
+            'file.mimes' => 'File kontrak harus berupa PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, atau PNG.',
+            'file.max' => 'Ukuran file kontrak maksimal 5 MB.',
         ];
     }
 }

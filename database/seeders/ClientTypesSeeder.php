@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ClientType;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ClientTypesSeeder extends Seeder

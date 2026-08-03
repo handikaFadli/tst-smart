@@ -13,12 +13,27 @@ use Illuminate\View\View;
 
 class TicketRuleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $rules = TicketRule::query()
-            ->with('category')
+        $query = TicketRule::query()
+            ->with('category');
+
+        // Search berdasarkan nama rule / kategori
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_rule', 'like', "%{$search}%")
+                    ->orWhereHas('category', function ($q2) use ($search) {
+                        $q2->where('nama', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $rules = $query
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate($request->per_page ?? 10)
+            ->withQueryString();
 
         return view(
             'ticket_rules.index',

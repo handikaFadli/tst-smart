@@ -7,18 +7,61 @@ use App\Http\Requests\UpdateClientAccountRequest;
 use App\Models\Client;
 use App\Models\ClientAccount;
 use App\Models\ClientApp;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ClientAccountController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::with(['app.accounts', 'app'])->get();
+        $query = Client::with([
+            'app.accounts',
+            'app',
+        ]);
 
-        return view('accounts.index', compact('clients'));
+        if ($request->filled('search')) {
+
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhereHas('app.accounts', function ($q2) use ($search) {
+                        $q2->where('username', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $selectedProduct = null;
+
+        if ($request->filled('jenis')) {
+
+            $selectedProduct = Product::find($request->jenis);
+
+            $query->whereHas('app.product', function ($q) use ($request) {
+                $q->where('products.id', $request->jenis);
+            });
+        }
+
+        $perPage = $request->integer('per_page', 10);
+
+        $clients = $query
+            ->orderBy('nama')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        // $clients = Client::with(['app.accounts', 'app'])->get();
+
+        return view('accounts.index', [
+            'clients' => $clients,
+            'products'    => Product::orderBy('nama')->get(),
+            'selectedProduct' => $selectedProduct,
+            'user'        => Auth::user(),
+        ]);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Models\ClientApp;
+use App\Models\ClientContract;
 use App\Models\ClientType;
 use App\Models\Feature;
 use App\Models\Product;
@@ -27,47 +28,73 @@ class ClientController extends Controller
             'app.product',
             'app.server',
             'app.features',
+            'contracts',
         ]);
 
-        // Filter Status Aplikasi
-        if ($request->filled('status') && $request->status != 'semua') {
-            $query->whereHas('app', function ($q) use ($request) {
-                $q->where('status', $request->status);
-            });
-        }
-
-        // Filter Jenis Client (Sekolah / Bimbel)
-        if ($request->filled('client_type_id') && $request->client_type_id != 'semua') {
-            $query->where('client_type_id', $request->client_type_id);
-        }
-
-        // Filter Product
-        if ($request->filled('product_id') && $request->product_id != 'semua') {
-            $query->whereHas('app', function ($q) use ($request) {
-                $q->where('product_id', $request->product_id);
-            });
-        }
-
-        // Search
         if ($request->filled('search')) {
+
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
+
                 $q->where('nama', 'like', "%{$search}%")
-                    ->orWhere('kode', 'like', "%{$search}%");
+                    ->orWhere('kode', 'like', "%{$search}%")
+                    ->orWhere('alamat', 'like', "%{$search}%")
+                    ->orWhereHas('clientType', function ($q2) use ($search) {
+                        $q2->where('nama', 'like', "%{$search}%");
+                    });
             });
         }
 
+        if ($request->filled('status')) {
+
+            switch ($request->status) {
+
+                case 'active':
+                    $query->where('status', 'active');
+                    break;
+
+                case 'expired':
+                    $query->where('status', 'expired');
+                    break;
+            }
+        }
+
+
+        $selectedClientType = null;
+
+        if ($request->filled('tipe')) {
+            $selectedClientType = ClientType::find($request->tipe);
+
+            $query->where('client_type_id', $request->tipe);
+        }
+
+        $selectedProduct = null;
+
+        if ($request->filled('jenis')) {
+
+            $selectedProduct = Product::find($request->jenis);
+
+            $query->whereHas('app.product', function ($q) use ($request) {
+                $q->where('products.id', $request->jenis);
+            });
+        }
+
+
+        $perPage = $request->integer('per_page', 10);
+
         $clients = $query
             ->orderBy('nama')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('clients.index', [
             'clients'     => $clients,
             'clientTypes' => ClientType::orderBy('nama')->get(),
+            'selectedClientType' => $selectedClientType,
             'products'    => Product::orderBy('nama')->get(),
-            'user' => Auth::user(),
+            'selectedProduct' => $selectedProduct,
+            'user'        => Auth::user(),
         ]);
     }
 
@@ -99,9 +126,12 @@ class ClientController extends Controller
         $validated = $request->validated();
 
         // Generate Kode Client
-        $nextId = (Client::withTrashed()->max('id') ?? 0) + 1;
+        $number = Client::withTrashed()->count() + 1;
 
-        $kodeClient = 'CL-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        do {
+            $kodeClient = 'CL-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+            $number++;
+        } while (Client::withTrashed()->where('kode', $kodeClient)->exists());
 
         // Simpan Client
         $client = Client::create([
@@ -132,6 +162,24 @@ class ClientController extends Controller
             $app->features()->sync($request->fitur_ids);
         }
 
+        // Simpan Kontrak
+        if ($request->filled('nomor_kontrak') || $request->filled('tanggal_mulai') || $request->filled('tanggal_berakhir') || $request->hasFile('file')) {
+
+            $filePath = null;
+
+            if ($request->hasFile('file')) {
+                $filePath = $request->file('file')->store('contracts', 'public');
+            }
+
+            ClientContract::create([
+                'client_id'        => $client->id,
+                'nomor_kontrak'    => $validated['nomor_kontrak'] ?? null,
+                'tanggal_mulai'    => $validated['tanggal_mulai'] ?? null,
+                'tanggal_berakhir' => $validated['tanggal_berakhir'] ?? null,
+                'file'             => $filePath,
+            ]);
+        }
+
         return redirect()
             ->route('clients.index')
             ->with('success', 'Client berhasil ditambahkan.');
@@ -149,6 +197,7 @@ class ClientController extends Controller
             'app.server',
             'app.features',
             'app.accounts',
+            'contracts',
         ]);
 
         return view('clients.show', compact('client'));
@@ -165,6 +214,7 @@ class ClientController extends Controller
             'app.product',
             'app.server',
             'app.features',
+            'contracts',
         ]);
 
         return view('clients.edit', [
@@ -235,6 +285,41 @@ class ClientController extends Controller
             if ($request->filled('fitur_ids')) {
                 $app->features()->sync($request->fitur_ids);
             }
+        }
+
+        // ─── Update Kontrak ───
+        $contract = $client->contracts()->first();
+
+        if ($contract) {
+
+            $contractData = [
+                'nomor_kontrak'    => $validated['nomor_kontrak'] ?? null,
+                'tanggal_mulai'    => $validated['tanggal_mulai'] ?? null,
+                'tanggal_berakhir' => $validated['tanggal_berakhir'] ?? null,
+            ];
+
+            // Upload file baru jika ada
+            if ($request->hasFile('file')) {
+                $contractData['file'] = $request->file('file')->store('contracts', 'public');
+            }
+
+            $contract->update($contractData);
+        } else {
+
+            // Belum ada kontrak, buat baru
+            $filePath = null;
+
+            if ($request->hasFile('file')) {
+                $filePath = $request->file('file')->store('contracts', 'public');
+            }
+
+            ClientContract::create([
+                'client_id'        => $client->id,
+                'nomor_kontrak'    => $validated['nomor_kontrak'] ?? null,
+                'tanggal_mulai'    => $validated['tanggal_mulai'] ?? null,
+                'tanggal_berakhir' => $validated['tanggal_berakhir'] ?? null,
+                'file'             => $filePath,
+            ]);
         }
 
         return redirect()
