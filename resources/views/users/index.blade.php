@@ -4,85 +4,207 @@
 
 @section('content')
 <main>
-    <div class="pt-5 block sm:flex items-center justify-between">
-        <div class="w-full mb-1">
-            <div class="mb-4">
-                <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Daftar User</h1>
-            </div>
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="pt-5 flex items-center justify-between mb-5">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Daftar User</h1>
+        <a href="{{ route('users.create') }}"
+        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Tambah
+        </a>
+    </div>
 
-                <div class="flex flex-wrap items-center gap-2">
-                    {{-- Filter Role --}}
-                    <button id="filter-role" data-dropdown-toggle="dropdown-role"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 {{ request('role') && request('role') !== 'semua' ? 'ring-2 ring-blue-200' : '' }}">
-                        @php
-                            $roleLabels = [
-                                'semua'   => 'Semua Role',
-                                'admin'   => 'Admin',
-                                'leader'  => 'Leader',
-                                'support' => 'Support',
-                                'viewer'  => 'Viewer',
-                            ];
-                        @endphp
-                        {{ $roleLabels[request('role', 'semua')] ?? 'Semua Role' }}
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div id="dropdown-role" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44 dark:bg-gray-700">
-                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                            @foreach (['semua', 'admin', 'leader', 'support', 'viewer'] as $role)
-                                <li>
-                                    <a href="?{{ http_build_query(request()->except('role') + ['role' => $role]) }}"
-                                       class="block px-4 py-2 hover:bg-gray-100 {{ request('role', 'semua') === $role ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">
-                                        {{ $roleLabels[$role] }}
-                                    </a>
-                                </li>
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-2">
+        <div class="flex items-center gap-3">
+                    {{-- Dropdown Per Page --}}
+                    <div class="relative inline-block">
+                        <button id="perPageButton"
+                            data-dropdown-toggle="perPageDropdown"
+                            class="flex items-center justify-between w-18 h-11 px-4
+                                bg-white border border-gray-200 rounded-xl shadow-sm
+                                text-sm font-medium text-gray-700
+                                hover:border-primary-400 hover:shadow-md
+                                focus:ring-4 focus:ring-primary-100
+                                transition-all cursor-pointer">
+
+                            <span>{{ request('per_page',10) }} </span>
+
+                            <svg class="w-4 h-4 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7"/>
+                            </svg>
+
+                        </button>
+
+                        <div id="perPageDropdown" class="hidden z-20 w-36 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                            @foreach([10,25,50,100] as $size)
+                                <button
+                                    onclick="updatePerPage({{ $size }})"
+                                    class="w-full px-4 py-2.5 text-left text-sm
+                                        hover:bg-primary-50
+                                        hover:text-primary-600
+                                        transition cursor-pointer
+                                        {{ request('per_page',10)==$size ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-gray-700' }}">
+                                    {{ $size }}
+                                </button>
                             @endforeach
-                        </ul>
+                        </div>
+                    </div>
+
+                    {{-- Filter Role --}}
+                    <div class="relative inline-block">
+                        <button
+                            id="roleButton"
+                            data-dropdown-toggle="roleDropdown"
+                            class="flex items-center justify-between min-w-37 h-11 px-4
+                                bg-white border border-gray-200 rounded-xl shadow-sm
+                                text-sm font-medium text-gray-700
+                                hover:border-primary-400 hover:shadow-md
+                                focus:ring-4 focus:ring-primary-100
+                                transition-all cursor-pointer">
+
+                            <span>
+                                @php
+                                    $roleLabels = [
+                                        'semua'   => 'Semua Role',
+                                        'admin'   => 'Admin',
+                                        'leader'  => 'Leader',
+                                        'support' => 'Support',
+                                        'viewer'  => 'Viewer',
+                                    ];
+                                @endphp
+                                {{ $roleLabels[request('role', 'semua')] ?? 'Semua Role' }}
+                            </span>
+
+                            <svg class="w-4 h-4 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7"/>
+
+                            </svg>
+
+                        </button>
+
+                        <div id="roleDropdown"
+                            class="hidden z-20 w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer">
+
+                            @foreach (['semua', 'admin', 'leader', 'support', 'viewer'] as $role)
+                                <button
+                                    onclick="filterRole('{{ $role }}')"
+                                    class="w-full px-4 py-2.5 flex items-center justify-between
+                                        hover:bg-primary-50 hover:text-primary-600 transition cursor-pointer
+                                        {{ request('role', 'semua') === $role ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-gray-700' }}">
+
+                                    <span>{{ $roleLabels[$role] }}</span>
+
+                                </button>
+                            @endforeach
+
+                        </div>
                     </div>
 
                     {{-- Filter Status --}}
-                    <button id="filter-status" data-dropdown-toggle="dropdown-status"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 {{ request('status') && request('status') !== 'semua' ? 'ring-2 ring-blue-200' : '' }}">
-                        @php
-                            $statusLabels = [
-                                'semua'    => 'Semua Status',
-                                'active'   => 'Aktif',
-                                'inactive' => 'Nonaktif',
-                            ];
-                        @endphp
-                        {{ $statusLabels[request('status', 'semua')] ?? 'Semua Status' }}
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div id="dropdown-status" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-lg w-44 dark:bg-gray-700">
-                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                    <div class="relative inline-block">
+                        <button
+                            id="statusButton"
+                            data-dropdown-toggle="statusDropdown"
+                            class="flex items-center justify-between min-w-37 h-11 px-4
+                                bg-white border border-gray-200 rounded-xl shadow-sm
+                                text-sm font-medium text-gray-700
+                                hover:border-primary-400 hover:shadow-md
+                                focus:ring-4 focus:ring-primary-100
+                                transition-all cursor-pointer">
+
+                            <span>
+                                @php
+                                    $statusLabels = [
+                                        'semua'    => 'Semua Status',
+                                        'active'   => 'Aktif',
+                                        'inactive' => 'Nonaktif',
+                                    ];
+                                @endphp
+                                {{ $statusLabels[request('status', 'semua')] ?? 'Semua Status' }}
+                            </span>
+
+                            <svg class="w-4 h-4 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7"/>
+
+                            </svg>
+
+                        </button>
+
+                        <div id="statusDropdown"
+                            class="hidden z-20 w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer">
+
                             @foreach (['semua', 'active', 'inactive'] as $status)
-                                <li>
-                                    <a href="?{{ http_build_query(request()->except('status') + ['status' => $status]) }}"
-                                       class="block px-4 py-2 hover:bg-gray-100 {{ request('status', 'semua') === $status ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">
-                                        {{ $statusLabels[$status] }}
-                                    </a>
-                                </li>
+                                <button
+                                    onclick="filterStatus('{{ $status }}')"
+                                    class="w-full px-4 py-2.5 flex items-center justify-between
+                                        hover:bg-primary-50 hover:text-primary-600 transition cursor-pointer
+                                        {{ request('status', 'semua') === $status ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-gray-700' }}">
+
+                                    <span>{{ $statusLabels[$status] }}</span>
+
+                                </button>
                             @endforeach
-                        </ul>
+
+                        </div>
                     </div>
 
-                </div>
+</div>
 
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('users.create') }}"
-                       class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-full hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Tambah
-                    </a>
-                </div>
+        <div class="relative flex w-96">
+            <div class="relative flex-1">
+                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
+                </svg>
 
+                <input
+                    id="search-input"
+                    value="{{ request('search') }}"
+                    placeholder="Cari..."
+                    class="w-full h-11 rounded-l-xl border border-gray-300 border-r-0
+                        pl-11 pr-4 text-sm
+                        focus:outline-none
+                        focus:border-primary-500
+                        focus:ring-4 focus:ring-primary-100
+                        transition-all duration-200"
+                    onkeypress="if(event.key==='Enter') searchTable()">
             </div>
+
+            <button
+                onclick="searchTable()"
+                class="h-11 px-6 rounded-r-xl
+                    bg-primary-600 hover:bg-primary-700
+                    border border-primary-600
+                    text-white text-sm font-medium
+                    transition-all duration-200 cursor-pointer">
+                Cari
+            </button>
         </div>
     </div>
 
@@ -90,7 +212,7 @@
         <div class="overflow-x-auto">
             <div class="inline-block min-w-full align-middle">
                 <div class="overflow-hidden shadow relative bg-neutral-primary-soft">
-                    <table class="w-full text-sm text-left" id="data-table">
+                    <table class="w-full text-sm text-left">
                         <thead>
                             <tr class="bg-slate-200 dark:bg-gray-700">
                                 <th class="px-4 py-3 text-xs font-medium text-gray-600 uppercase tracking-wider w-12">#</th>
@@ -200,10 +322,100 @@
         </div>
 
         @if ($users->hasPages())
-            <div class="mt-4">
-                {{ $users->links() }}
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                <div class="text-sm text-gray-500">
+                    Menampilkan
+                    <span class="font-semibold">{{ $users->firstItem() ?? 0 }}</span>
+                    -
+                    <span class="font-semibold">{{ $users->lastItem() ?? 0 }}</span>
+                    dari
+                    <span class="font-semibold">{{ $users->total() }}</span>
+                    data
+                </div>
+
+                <div>
+                    {{ $users->withQueryString() }}
+                </div>
+            </div>
+        @else
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                <div class="text-sm text-gray-500">
+                    Menampilkan
+                    <span class="font-semibold">{{ $users->firstItem() ?? 0 }}</span>
+                    -
+                    <span class="font-semibold">{{ $users->lastItem() ?? 0 }}</span>
+                    dari
+                    <span class="font-semibold">{{ $users->total() }}</span>
+                    data
+                </div>
             </div>
         @endif
     </div>
 </main>
+
+@push('scripts')
+<script>
+
+    function getUrl() {
+        return new URL(window.location.href);
+    }
+
+    function searchTable() {
+
+        const url = getUrl();
+        const search = document.getElementById('search-input').value;
+
+        if (search !== '') {
+            url.searchParams.set('search', search);
+        } else {
+            url.searchParams.delete('search');
+        }
+
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+    function updatePerPage(value) {
+
+        const url = getUrl();
+
+        url.searchParams.set('per_page', value);
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+    function filterRole(role) {
+
+        const url = getUrl();
+
+        if (role === '' || role === 'semua') {
+            url.searchParams.delete('role');
+        } else {
+            url.searchParams.set('role', role);
+        }
+
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+    function filterStatus(status) {
+
+        const url = getUrl();
+
+        if (status === '' || status === 'semua') {
+            url.searchParams.delete('status');
+        } else {
+            url.searchParams.set('status', status);
+        }
+
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+</script>
+@endpush
 @endsection

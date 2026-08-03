@@ -169,28 +169,40 @@ class TicketController extends Controller
         $compliance = round(($onTime / $total) * 100, 1);
 
         $technicianPerformance = User::query()
-            ->where('role', 'support')
-            ->withCount([
-                'assignedTickets as total_ticket',
-                'assignedTickets as solved_ticket' => function ($q) {
-                    $q->whereIn('status', ['resolved', 'closed']);
-                },
-                'assignedTickets as open_ticket' => function ($q) {
-                    $q->whereIn('status', ['open', 'in_progress', 'pending']);
-                },
-                'assignedTickets as breach_ticket' => function ($q) {
-                    $q->whereHas('latestRuleLog', function ($sla) {
-                        $sla->where('status', 'breach');
-                    });
-                },
+            ->whereIn('role', ['support'])
+            ->where('is_active', true)
+            ->with([
+                'assignedTickets.category',
             ])
-            ->get()
-            ->map(function ($item) {
-                $item->success_rate = $item->total_ticket > 0
-                    ? round(($item->solved_ticket / $item->total_ticket) * 100, 1)
-                    : 0;
+            ->withCount([
+                'assignedTickets as in_progress_ticket' => function ($query) {
+                    $query->where('status', 'in_progress');
+                },
 
-                return $item;
+                'assignedTickets as pending_ticket' => function ($query) {
+                    $query->where('status', 'pending');
+                },
+
+                'assignedTickets as solved_ticket' => function ($query) {
+                    $query->where('status', 'resolved');
+                },
+
+                'assignedTickets as closed_ticket' => function ($query) {
+                    $query->where('status', 'closed');
+                },
+
+                'assignedTickets as total_ticket',
+            ])
+            ->orderBy('name')
+            ->get()
+            ->map(function ($technician) {
+                $technician->ticket_types = $technician->assignedTickets
+                    ->pluck('category.nama')
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                return $technician;
             });
 
         return view('tickets.monitoring_sla', compact(

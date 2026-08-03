@@ -70,111 +70,19 @@ class DashboardController extends Controller
 			->orderByDesc('total')
 			->pluck('total', 'priority');
 
-		// 6. Team Performance (support & leader)
-
-		$driver = DB::getDriverName();
-
+		// Team Performance: total tiket closed per teknisi support
 		$teamPerformance = User::query()
-			->whereIn('role', ['support', 'leader'])
-			->where('users.is_active', true)
-			->leftJoin('tickets', 'users.id', '=', 'tickets.assigned_to')
-			->select([
-				'users.id',
-				'users.name',
-				DB::raw('COUNT(DISTINCT tickets.id) as total_tickets'),
+			->where('role', 'support')
+			->where('is_active', true)
+			->withCount([
+				'assignedTickets as total_closed' => function ($query) {
+					$query->where('status', 'closed');
+				},
 			])
-			->groupBy('users.id', 'users.name')
-			->orderByDesc('total_tickets')
-			->get()
-			->map(function ($user) use ($driver) {
+			->orderByDesc('total_closed')
+			->orderBy('name')
+			->get();
 
-				// ==========================
-				// Average Resolution Time
-				// ==========================
-				if ($driver === 'pgsql') {
-
-					$avgResolution = Ticket::query()
-						->where('assigned_to', $user->id)
-						->whereNotNull('resolved_at')
-						->selectRaw("
-                    ROUND(
-                        AVG(
-                            EXTRACT(
-                                EPOCH FROM (
-                                    resolved_at - created_at
-                                )
-                            ) / 60
-                        ),
-                    1) as avg
-                ")
-						->value('avg');
-				} else {
-
-					$avgResolution = Ticket::query()
-						->where('assigned_to', $user->id)
-						->whereNotNull('resolved_at')
-						->selectRaw("
-                    ROUND(
-                        AVG(
-                            TIMESTAMPDIFF(
-                                MINUTE,
-                                created_at,
-                                resolved_at
-                            )
-                        ),
-                    1) as avg
-                ")
-						->value('avg');
-				}
-
-				// ==========================
-				// Average First Response
-				// ==========================
-				if ($driver === 'pgsql') {
-
-					$avgResponse = TicketRuleLog::query()
-						->whereHas('ticket', function ($q) use ($user) {
-							$q->where('assigned_to', $user->id);
-						})
-						->whereNotNull('first_response_at')
-						->selectRaw("
-                    ROUND(
-                        AVG(
-                            EXTRACT(
-                                EPOCH FROM (
-                                    first_response_at - created_at
-                                )
-                            ) / 60
-                        ),
-                    1) as avg
-                ")
-						->value('avg');
-				} else {
-
-					$avgResponse = TicketRuleLog::query()
-						->whereHas('ticket', function ($q) use ($user) {
-							$q->where('assigned_to', $user->id);
-						})
-						->whereNotNull('first_response_at')
-						->selectRaw("
-                    ROUND(
-                        AVG(
-                            TIMESTAMPDIFF(
-                                MINUTE,
-                                created_at,
-                                first_response_at
-                            )
-                        ),
-                    1) as avg
-                ")
-						->value('avg');
-				}
-
-				$user->avg_resolution_minutes = round($avgResolution ?? 0, 1);
-				$user->avg_response_minutes = round($avgResponse ?? 0, 1);
-
-				return $user;
-			});
 
 		// 7. Top Clients
 		$topClients = Client::select([

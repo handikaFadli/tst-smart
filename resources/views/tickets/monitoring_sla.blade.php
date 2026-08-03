@@ -319,7 +319,10 @@
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="{{ route('tickets.show', $ticket->id) }}"
                                            class="inline-flex items-center justify-center w-9 h-9 text-blue-600 transition border border-blue-200 rounded-lg hover:bg-blue-50">
-                                            👁
+                                            <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-width="1" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
+                                                        <path stroke="currentColor" stroke-width="1" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                            </svg>
                                         </a>
                                     </div>
                                 </td>
@@ -368,15 +371,12 @@
 
     </div>
 
-    {{-- ========================= --}}
-    {{-- PERFORMA TEKNISI --}}
-    {{-- ========================= --}}
     <div class="mt-5 overflow-hidden bg-white shadow rounded-2xl">
 
         <div class="flex items-center justify-between px-6 py-4 border-b">
             <div>
                 <h2 class="text-lg font-semibold text-gray-800">
-                    Performa Teknisi
+                    Riwayat Kinerja Teknisi
                 </h2>
                 <p class="mt-1 text-sm text-gray-500">
                     Statistik penyelesaian tiket setiap teknisi.
@@ -389,138 +389,92 @@
             <table class="min-w-full">
 
                 <thead class="bg-gray-50">
-
                     <tr class="text-xs font-semibold tracking-wider text-gray-500 uppercase">
-
-                        <th class="px-6 py-4 text-left">
-                            Teknisi
-                        </th>
-
-                        <th class="px-4 py-4 text-center">
-                            Total
-                        </th>
-
-                        <th class="px-4 py-4 text-center">
-                            Solved
-                        </th>
-
-                        <th class="px-4 py-4 text-center">
-                            Open
-                        </th>
-
-                        <th class="px-4 py-4 text-center">
-                            Breach
-                        </th>
-
-                        <th class="px-6 py-4">
-                            Success Rate
-                        </th>
-
+                        <th class="px-6 py-4 text-left">Teknisi</th>
+                        <th class="px-6 py-4 text-left">Tiket</th>
+                        <th class="px-4 py-4 text-center">In Progress</th>
+                        <th class="px-4 py-4 text-center">Pending</th>
+                        <th class="px-4 py-4 text-center">Solved</th>
+                        <th class="px-4 py-4 text-center">Closed</th>
+                        <th class="px-4 py-4 text-center">Total</th>
                     </tr>
-
                 </thead>
 
                 <tbody class="divide-y divide-gray-100">
+                    @forelse($technicianPerformance as $tech)
+                        <tr class="transition hover:bg-gray-50">
 
-                @foreach($technicianPerformance as $index => $tech)
-
-                    <tr class="hover:bg-gray-50">
-
-                        <td class="px-6 py-4">
-
-                            <div class="flex items-center gap-3">
-
-                                <div
-                                    class="flex items-center justify-center w-10 h-10 font-bold text-blue-600 bg-blue-100 rounded-full">
-
-                                    {{ $index+1 }}
-
-                                </div>
-
-                                <div>
-
-                                    <div class="font-semibold text-gray-800">
-                                        {{ $tech->name }}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center justify-center w-10 h-10 font-semibold text-blue-700 bg-blue-100 rounded-full">
+                                        {{ strtoupper(substr($tech->name, 0, 1)) }}
                                     </div>
 
-                                    <div class="text-xs text-gray-400">
-                                        Teknisi Support
+                                    <div>
+                                        <p class="font-semibold text-gray-900">
+                                            {{ $tech->name }}
+                                        </p>
+                                        <p class="text-xs text-gray-400">
+                                            {{ ucfirst($tech->role) }}
+                                        </p>
                                     </div>
-
                                 </div>
+                            </td>
 
-                            </div>
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <span class="font-semibold text-gray-700">
-                                {{ $tech->total_ticket }}
-                            </span>
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <span
-                                class="inline-flex px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-
-                                {{ $tech->solved_ticket }}
-
-                            </span>
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <span
-                                class="inline-flex px-3 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">
-
-                                {{ $tech->open_ticket }}
-
-                            </span>
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <span
-                                class="inline-flex px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-
-                                {{ $tech->breach_ticket }}
-
-                            </span>
-
-                        </td>
-
-                        <td class="px-6 py-4">
-
-                            <div class="flex items-center gap-3">
-
-                                <div class="w-full h-2 bg-gray-200 rounded-full">
-
-                                    <div
-                                        class="h-2 rounded-full
-                                        {{ $tech->success_rate >= 90 ? 'bg-green-500'
-                                        : ($tech->success_rate >=70 ? 'bg-yellow-500' : 'bg-red-500') }}"
-                                        style="width: {{ $tech->success_rate }}%">
+                            <td class="px-6 py-4">
+                                @if($tech->ticket_types->isNotEmpty())
+                                    <div class="flex flex-wrap gap-1.5">
+                                        @foreach($tech->ticket_types as $type)
+                                            <span class="inline-flex px-2.5 py-1 text-xs font-medium text-violet-700 bg-violet-100 rounded-full">
+                                                {{ $type }}
+                                            </span>
+                                        @endforeach
                                     </div>
+                                @else
+                                    <span class="text-sm text-gray-400">
+                                        Belum ada jenis tiket
+                                    </span>
+                                @endif
+                            </td>
 
-                                </div>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-flex min-w-9 justify-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                                    {{ $tech->in_progress_ticket }}
+                                </span>
+                            </td>
 
-                                <div class="w-12 text-sm font-semibold text-right">
-                                    {{ $tech->success_rate }}%
-                                </div>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-flex min-w-9 justify-center rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                                    {{ $tech->pending_ticket }}
+                                </span>
+                            </td>
 
-                            </div>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-flex min-w-9 justify-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                                    {{ $tech->solved_ticket }}
+                                </span>
+                            </td>
 
-                        </td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-flex min-w-9 justify-center rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                                    {{ $tech->closed_ticket }}
+                                </span>
+                            </td>
 
-                    </tr>
+                            <td class="px-4 py-4 text-center">
+                                <span class="text-base font-bold text-gray-900">
+                                    {{ $tech->total_ticket }}
+                                </span>
+                            </td>
 
-                @endforeach
-
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                Belum ada data teknisi.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
 
             </table>

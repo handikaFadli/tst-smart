@@ -226,30 +226,64 @@
         </div>
 
         {{-- Team Performance --}}
-        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Performa Tim Support</h3>
+        <div class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Team Performance
+                </h2>
+
+                {{-- <p class="mt-1 text-sm text-gray-500">
+                    Total tiket yang berhasil diselesaikan oleh setiap teknisi.
+                </p> --}}
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" class="px-3 py-2">Nama</th>
-                            <th scope="col" class="px-3 py-2 text-center">Tiket</th>
-                            <th scope="col" class="px-3 py-2 text-center">Resp (m)</th>
-                            <th scope="col" class="px-3 py-2 text-center">Resol (m)</th>
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr class="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            <th class="px-6 py-4 text-left">
+                                Teknisi
+                            </th>
+
+                            <th class="px-6 py-4 text-center">
+                                Total Tiket
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @forelse($teamPerformance as $member)
-                        <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <td class="px-3 py-2 font-medium text-gray-900 dark:text-white whitespace-nowrap">{{ $member->name }}</td>
-                            <td class="px-3 py-2 text-center">{{ $member->total_tickets }}</td>
-                            <td class="px-3 py-2 text-center">{{ $member->avg_response_minutes ?? '-' }}</td>
-                            <td class="px-3 py-2 text-center">{{ $member->avg_resolution_minutes ?? '-' }}</td>
-                        </tr>
+
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($teamPerformance as $tech)
+                            <tr class="transition hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex items-center justify-center w-10 h-10 font-semibold text-blue-700 bg-blue-100 rounded-full">
+                                            {{ strtoupper(substr($tech->name, 0, 1)) }}
+                                        </div>
+
+                                        <div>
+                                            <p class="font-semibold text-gray-900">
+                                                {{ $tech->name }}
+                                            </p>
+
+                                            <p class="text-xs text-gray-400">
+                                                Teknisi Support
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex min-w-12 items-center justify-center rounded-full bg-green-100 px-4 py-1.5 text-sm font-bold text-green-700">
+                                        {{ $tech->total_closed }}
+                                    </span>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="4" class="px-3 py-4 text-center text-gray-500 dark:text-gray-400">Belum ada data</td>
-                        </tr>
+                            <tr>
+                                <td colspan="2" class="px-6 py-10 text-center text-gray-500">
+                                    Belum ada data teknisi.
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>

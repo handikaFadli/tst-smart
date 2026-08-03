@@ -37,9 +37,11 @@ class UserController extends Controller
 			});
 		}
 
+		$perPage = $request->integer('per_page', 10);
+
 		$users = $query
 			->orderBy('name')
-			->paginate(10)
+			->paginate($perPage)
 			->withQueryString();
 
 		return view('users.index', compact('users'));
