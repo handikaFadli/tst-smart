@@ -433,7 +433,13 @@
                                             </div>
                                         @endif
 
-                                        {{-- @if($contract->file)
+                                        @if($contract->tanggal_berakhir)
+                                            <div class="text-gray-500 mt-1">
+                                                sd. {{ \Carbon\Carbon::parse($contract->tanggal_berakhir)->format('d M Y') }}
+                                            </div>
+                                        @endif
+
+                                        @if($contract->file)
                                             <a href="{{ asset('storage/'.$contract->file) }}" target="_blank"
                                                class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-500 dark:text-blue-400 mt-1">
                                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -441,7 +447,7 @@
                                                 </svg>
                                                 File
                                             </a>
-                                        @endif --}}
+                                        @endif
                                     @else
                                         <span class="text-gray-300">-</span>
                                     @endif

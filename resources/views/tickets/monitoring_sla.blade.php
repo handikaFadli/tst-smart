@@ -128,8 +128,9 @@
                 </div>
             </div>
 
-            {{-- Tombol Download Excel --}}
+{{-- Tombol Download Excel --}}
             <a href="{{ route('tickets.monitoring-sla.export', $slaStatus ? ['sla_status' => $slaStatus] : []) }}"
+               data-download
                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -373,7 +374,7 @@
 
     <div class="mt-5 overflow-hidden bg-white shadow rounded-2xl">
 
-        <div class="flex items-center justify-between px-6 py-4 border-b">
+<div class="flex flex-wrap items-center justify-between px-6 py-4 border-b gap-3">
             <div>
                 <h2 class="text-lg font-semibold text-gray-800">
                     Riwayat Kinerja Teknisi
@@ -381,6 +382,29 @@
                 <p class="mt-1 text-sm text-gray-500">
                     Statistik penyelesaian tiket setiap teknisi.
                 </p>
+            </div>
+
+            {{-- Filter Priority --}}
+            <div class="relative inline-block">
+                <button id="filter-priority" data-dropdown-toggle="priority-dropdown"
+                    class="inline-flex items-center justify-between gap-1.5 min-w-37 h-11 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-primary-400 hover:shadow-md cursor-pointer {{ $selectedPriority ? 'ring-2 ring-blue-200' : '' }}">
+                    <span>{{ $selectedPriority ? ucfirst($selectedPriority) : 'Semua Priority' }}</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="priority-dropdown" class="z-20 hidden w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer dark:bg-gray-700">
+                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                        <li>
+                            <a href="{{ route('tickets.monitoring-sla', request()->except('priority', 'page')) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ !$selectedPriority ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Semua</a>
+                        </li>
+                        @foreach(['low', 'medium', 'high'] as $priority)
+                            <li>
+                                <a href="{{ route('tickets.monitoring-sla', array_merge(request()->except('priority', 'page'), ['priority' => $priority])) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ $selectedPriority === $priority ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">{{ ucfirst($priority) }}</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         </div>
 

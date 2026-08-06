@@ -48,9 +48,13 @@ Route::middleware('auth')->group(function () {
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('tickets/export', [ReportController::class, 'exportTickets'])->name('tickets.export');
+        Route::get('tickets/export-pdf', [ReportController::class, 'exportTicketsPdf'])->name('tickets.export-pdf');
         Route::get('sla/export', [ReportController::class, 'exportSla'])->name('sla.export');
+        Route::get('sla/export-pdf', [ReportController::class, 'exportSlaPdf'])->name('sla.export-pdf');
         Route::get('technician/export', [ReportController::class, 'exportTechnicianPerformance'])->name('technician.export');
+        Route::get('technician/export-pdf', [ReportController::class, 'exportTechnicianPerformancePdf'])->name('technician.export-pdf');
         Route::get('clients/export', [ReportController::class, 'exportClients'])->name('clients.export');
+        Route::get('clients/export-pdf', [ReportController::class, 'exportClientsPdf'])->name('clients.export-pdf');
     });
 
     Route::post('tickets/{ticket}/messages', [TicketMessageController::class, 'store'])->name('tickets.messages.store');

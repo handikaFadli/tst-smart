@@ -168,6 +168,13 @@ class TicketController extends Controller
         $total   = max(1, $onTime + $warning + $breach);
         $compliance = round(($onTime / $total) * 100, 1);
 
+        // Filter priority untuk Riwayat Kinerja Teknisi
+        $selectedPriority = $request->filled('priority')
+            ? in_array($request->priority, ['low', 'medium', 'high'], true)
+            ? $request->priority
+            : null
+            : null;
+
         $technicianPerformance = User::query()
             ->whereIn('role', ['support'])
             ->where('is_active', true)
@@ -175,28 +182,52 @@ class TicketController extends Controller
                 'assignedTickets.category',
             ])
             ->withCount([
-                'assignedTickets as in_progress_ticket' => function ($query) {
+                'assignedTickets as in_progress_ticket' => function ($query) use ($selectedPriority) {
                     $query->where('status', 'in_progress');
+                    if ($selectedPriority) {
+                        $query->where('priority', $selectedPriority);
+                    }
                 },
 
-                'assignedTickets as pending_ticket' => function ($query) {
+                'assignedTickets as pending_ticket' => function ($query) use ($selectedPriority) {
                     $query->where('status', 'pending');
+                    if ($selectedPriority) {
+                        $query->where('priority', $selectedPriority);
+                    }
                 },
 
-                'assignedTickets as solved_ticket' => function ($query) {
+                'assignedTickets as solved_ticket' => function ($query) use ($selectedPriority) {
                     $query->where('status', 'resolved');
+                    if ($selectedPriority) {
+                        $query->where('priority', $selectedPriority);
+                    }
                 },
 
-                'assignedTickets as closed_ticket' => function ($query) {
+                'assignedTickets as closed_ticket' => function ($query) use ($selectedPriority) {
                     $query->where('status', 'closed');
+                    if ($selectedPriority) {
+                        $query->where('priority', $selectedPriority);
+                    }
                 },
 
-                'assignedTickets as total_ticket',
+                'assignedTickets as total_ticket' => function ($query) use ($selectedPriority) {
+                    if ($selectedPriority) {
+                        $query->where('priority', $selectedPriority);
+                    }
+                },
             ])
+            ->when($selectedPriority, function ($query) use ($selectedPriority) {
+                $query->whereHas('assignedTickets', function ($q) use ($selectedPriority) {
+                    $q->where('priority', $selectedPriority);
+                });
+            })
             ->orderBy('name')
             ->get()
-            ->map(function ($technician) {
+            ->map(function ($technician) use ($selectedPriority) {
                 $technician->ticket_types = $technician->assignedTickets
+                    ->when($selectedPriority, function ($collection) use ($selectedPriority) {
+                        return $collection->where('priority', $selectedPriority);
+                    })
                     ->pluck('category.nama')
                     ->filter()
                     ->unique()
@@ -213,7 +244,8 @@ class TicketController extends Controller
             'breach',
             'compliance',
             'technicianPerformance',
-            'slaStatus'
+            'slaStatus',
+            'selectedPriority'
         ));
     }
 

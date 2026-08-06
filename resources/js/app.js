@@ -25,8 +25,24 @@ window.hideLoading = function () {
     }
 };
 
+// Tandai bahwa klik berasal dari elemen download (Excel/PDF)
+let isFileDownload = false;
+
+document.addEventListener("click", function (e) {
+    const el = e.target.closest("[data-download]");
+    if (el) {
+        isFileDownload = true;
+    }
+});
+
 // Refresh / pindah halaman / tutup tab
 window.addEventListener("beforeunload", function () {
+    // Jika klik berasal dari tombol download file, jangan tampilkan loading screen
+    // karena halaman tidak benar-benar berpindah dan loading akan macet.
+    if (isFileDownload) {
+        isFileDownload = false;
+        return;
+    }
     showLoading();
 });
 
