@@ -175,9 +175,15 @@ class TicketController extends Controller
             : null
             : null;
 
+        // Search teknisi pada Riwayat Kinerja Teknisi
+        $technicianSearch = $request->filled('teknisi_search') ? $request->teknisi_search : null;
+
         $technicianPerformance = User::query()
             ->whereIn('role', ['support'])
             ->where('is_active', true)
+            ->when($technicianSearch, function ($query) use ($technicianSearch) {
+                $query->where('name', 'like', "%{$technicianSearch}%");
+            })
             ->with([
                 'assignedTickets.category',
             ])
@@ -245,7 +251,8 @@ class TicketController extends Controller
             'compliance',
             'technicianPerformance',
             'slaStatus',
-            'selectedPriority'
+            'selectedPriority',
+            'technicianSearch'
         ));
     }
 

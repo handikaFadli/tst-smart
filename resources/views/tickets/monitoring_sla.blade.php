@@ -374,7 +374,7 @@
 
     <div class="mt-5 overflow-hidden bg-white shadow rounded-2xl">
 
-<div class="flex flex-wrap items-center justify-between px-6 py-4 border-b gap-3">
+    <div class="flex flex-wrap items-center justify-between px-6 py-4 border-b gap-3">
             <div>
                 <h2 class="text-lg font-semibold text-gray-800">
                     Riwayat Kinerja Teknisi
@@ -384,26 +384,63 @@
                 </p>
             </div>
 
-            {{-- Filter Priority --}}
-            <div class="relative inline-block">
-                <button id="filter-priority" data-dropdown-toggle="priority-dropdown"
-                    class="inline-flex items-center justify-between gap-1.5 min-w-37 h-11 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-primary-400 hover:shadow-md cursor-pointer {{ $selectedPriority ? 'ring-2 ring-blue-200' : '' }}">
-                    <span>{{ $selectedPriority ? ucfirst($selectedPriority) : 'Semua Priority' }}</span>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div id="priority-dropdown" class="z-20 hidden w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer dark:bg-gray-700">
-                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                        <li>
-                            <a href="{{ route('tickets.monitoring-sla', request()->except('priority', 'page')) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ !$selectedPriority ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Semua</a>
-                        </li>
-                        @foreach(['low', 'medium', 'high'] as $priority)
+{{-- Filter Priority + Search --}}
+            <div class="flex flex-wrap items-center gap-3">
+                {{-- Search Teknisi --}}
+                <div class="relative flex">
+                    <div class="relative flex-1">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"/>
+                        </svg>
+                        <input
+                            id="technician-search-input"
+                            value="{{ $technicianSearch }}"
+                            placeholder="Cari..."
+                            class="w-48 h-11 rounded-l-xl border border-gray-300 border-r-0
+                                pl-9 pr-3 text-sm
+                                focus:outline-none
+                                focus:border-primary-500
+                                focus:ring-4 focus:ring-primary-100
+                                transition-all duration-200"
+                            onkeypress="if(event.key==='Enter') searchTechnician()">
+                    </div>
+                    <button
+                        onclick="searchTechnician()"
+                        class="h-11 px-4 rounded-r-xl
+                            bg-primary-600 hover:bg-primary-700
+                            border border-primary-600
+                            text-white text-sm font-medium
+                            transition-all duration-200 cursor-pointer">
+                        Cari
+                    </button>
+                </div>
+
+                <div class="relative inline-block">
+                    <button id="filter-priority" data-dropdown-toggle="priority-dropdown"
+                        class="inline-flex items-center justify-between gap-1.5 min-w-37 h-11 px-4 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-primary-400 hover:shadow-md cursor-pointer {{ $selectedPriority ? 'ring-2 ring-blue-200' : '' }}">
+                        <span>{{ $selectedPriority ? ucfirst($selectedPriority) : 'Semua Priority' }}</span>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="priority-dropdown" class="z-20 hidden w-40 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden cursor-pointer dark:bg-gray-700">
+                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
                             <li>
-                                <a href="{{ route('tickets.monitoring-sla', array_merge(request()->except('priority', 'page'), ['priority' => $priority])) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ $selectedPriority === $priority ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">{{ ucfirst($priority) }}</a>
+                                <a href="{{ route('tickets.monitoring-sla', request()->except('priority', 'page')) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ !$selectedPriority ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">Semua</a>
                             </li>
-                        @endforeach
-                    </ul>
+                            @foreach(['low', 'medium', 'high'] as $priority)
+                                <li>
+                                    <a href="{{ route('tickets.monitoring-sla', array_merge(request()->except('priority', 'page'), ['priority' => $priority])) }}" class="block px-4 py-2.5 hover:bg-gray-100 {{ $selectedPriority === $priority ? 'bg-blue-50 font-medium' : '' }} dark:hover:bg-gray-600">{{ ucfirst($priority) }}</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -532,11 +569,27 @@
         window.location.href = url.toString();
     }
 
-    function updatePerPage(value) {
+function updatePerPage(value) {
 
         const url = getUrl();
 
         url.searchParams.set('per_page', value);
+        url.searchParams.set('page', 1);
+
+        window.location.href = url.toString();
+    }
+
+    function searchTechnician() {
+
+        const url = getUrl();
+        const search = document.getElementById('technician-search-input').value;
+
+        if (search !== '') {
+            url.searchParams.set('teknisi_search', search);
+        } else {
+            url.searchParams.delete('teknisi_search');
+        }
+
         url.searchParams.set('page', 1);
 
         window.location.href = url.toString();
